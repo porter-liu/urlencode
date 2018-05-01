@@ -1,0 +1,46 @@
+#!/usr/bin/python
+
+#
+# Created by Porter Liu @ 2018/4/30
+#
+
+import argparse
+import sys
+import urllib
+
+
+def process( input, decode ):
+	if decode:
+		return( urllib.unquote( input ) )
+	else:
+		#return( urllib.quote( input ) )  # urllib.quote() does not encode '/'
+		return( urllib.urlencode( { '':input } )[1:] )
+
+
+parser = argparse.ArgumentParser( description='Do urlencode or urldecode. https://github.com/porter-liu' )
+
+# input and -i are exclusive 
+group = parser.add_mutually_exclusive_group()
+group.add_argument( 'input', nargs='?', help='input content' )
+group.add_argument( '-i', dest='input_file', required=False, type=argparse.FileType('rt'), default=sys.stdin, help='input file (default: "-" for stdin)' )
+
+parser.add_argument( '-o', dest='output_file', required=False, type=argparse.FileType('wt'), default=sys.stdout, help='output file (default: "-" for stdout)' )
+parser.add_argument( '-D', dest='decode', action='store_true', help='decodes input' )
+
+try:
+    args = parser.parse_args()
+except IOError, msg:
+    parser.error( str( msg ) )
+
+end = ''
+if args.output_file.isatty():  # if the output file is a terminal, add a <LF> at the end to avoid displaying '%'
+	end = '\n'
+
+if args.input != None:
+	args.output_file.write( process( args.input, args.decode ) + end )
+elif args.input_file:
+	try:
+		args.output_file.write( process( args.input_file.read(), args.decode ) + end )
+	except KeyboardInterrupt:  # handle ctrl+C
+		args.output_file.write( end )
+		sys.exit( 0 )
