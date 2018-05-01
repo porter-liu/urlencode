@@ -28,9 +28,9 @@ parser.add_argument( '-o', dest='output_file', required=False, type=argparse.Fil
 parser.add_argument( '-D', dest='decode', action='store_true', help='decodes input' )
 
 try:
-    args = parser.parse_args()
+	args = parser.parse_args()
 except IOError, msg:
-    parser.error( str( msg ) )
+	parser.error( str( msg ) )
 
 end = ''
 if args.output_file.isatty():  # if the output file is a terminal, add a <LF> at the end to avoid displaying '%'
